@@ -3,1010 +3,732 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Nationwide Team Recognition Draw</title>
+<title>Team Recognition Draw</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+:root {
+  --bg:     #002b6b;
+  --accent: #FFD100;
+  --bg-dark: color-mix(in srgb, var(--bg) 60%, #000);
+  --bg-mid:  color-mix(in srgb, var(--bg) 80%, #000);
+}
+
 body {
   font-family: 'Barlow', sans-serif;
-  background: linear-gradient(160deg, #001a5c 0%, #003087 45%, #00205b 100%);
+  background: linear-gradient(150deg, var(--bg-dark) 0%, var(--bg) 50%, var(--bg-mid) 100%);
   min-height: 100vh;
   color: #fff;
   overflow-x: hidden;
 }
 
-/* ── INPUT SCREEN ─────────────────────────────── */
-#input-screen {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 24px;
-  position: relative;
-  overflow: hidden;
+/* ── CUSTOMIZE BUTTON ─── */
+#cust-btn {
+  position: fixed;
+  top: 16px; right: 16px;
+  z-index: 9999;
+  background: rgba(0,0,0,0.4);
+  border: 1.5px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.8);
+  border-radius: 6px;
+  padding: 8px 18px;
+  cursor: pointer;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+  transition: all 0.15s;
+  display: flex; align-items: center; gap: 8px;
 }
+#cust-btn:hover { background: rgba(0,0,0,0.6); color: #fff; }
+#cust-btn svg { flex-shrink: 0; }
 
-.bg-blob {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.02);
-  pointer-events: none;
+/* ── CUSTOMIZER PANEL ─── */
+#customizer {
+  position: fixed;
+  right: 0; top: 0; bottom: 0;
+  width: 256px;
+  background: #000d24;
+  border-left: 1px solid rgba(255,255,255,0.1);
+  z-index: 9998;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
 }
+#customizer.open { transform: translateX(0); }
 
-.logo-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 40px;
-}
-
-.shield {
-  width: 44px; height: 50px;
-  clip-path: polygon(50% 0%, 100% 18%, 100% 60%, 50% 100%, 0% 60%, 0% 18%);
-  background: linear-gradient(160deg, #FFD100, #ffc200);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px; font-weight: 900; color: #001a5c;
+.cust-header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: space-between;
   flex-shrink: 0;
 }
+.cust-header-title {
+  font-size: 0.68rem; letter-spacing: 0.18em;
+  text-transform: uppercase; font-weight: 700;
+  color: rgba(255,255,255,0.45);
+}
+#cust-close {
+  background: none; border: none;
+  color: rgba(255,255,255,0.35); cursor: pointer;
+  font-size: 1.3rem; line-height: 1; padding: 2px 4px;
+  transition: color 0.15s;
+}
+#cust-close:hover { color: #fff; }
 
-.logo-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.6rem;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1;
+.cust-body { padding: 0 20px 40px; }
+
+.cust-section {
+  padding: 20px 0 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.cust-section:last-child { border-bottom: none; }
+.cust-section-label {
+  font-size: 0.57rem; letter-spacing: 0.2em; text-transform: uppercase;
+  font-weight: 700; color: rgba(255,255,255,0.25); margin-bottom: 14px;
 }
 
-.logo-tag {
-  font-size: 0.6rem;
-  color: #FFD100;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-weight: 600;
-  margin-top: 3px;
+/* Color rows */
+.color-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.color-row-label { font-size: 0.82rem; color: rgba(255,255,255,0.6); }
+.color-swatch {
+  width: 42px; height: 30px; border-radius: 5px;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  overflow: hidden; cursor: pointer; position: relative; flex-shrink: 0;
+}
+.color-swatch input[type=color] {
+  position: absolute; inset: -6px;
+  width: calc(100% + 12px); height: calc(100% + 12px);
+  border: none; cursor: pointer; padding: 0;
+}
+
+/* Logo section */
+#logo-preview {
+  max-width: 100%; max-height: 54px; object-fit: contain;
+  display: none; margin: 0 auto 10px; border-radius: 4px;
+}
+.logo-remove {
+  background: rgba(255,70,70,0.1); border: 1px solid rgba(255,70,70,0.28);
+  color: rgba(255,140,140,0.9); border-radius: 4px; padding: 5px 12px;
+  font-size: 0.7rem; font-weight: 600; cursor: pointer; display: none;
+  width: 100%; margin-bottom: 10px; font-family: 'Barlow', sans-serif;
+  transition: background 0.15s;
+}
+.logo-remove:hover { background: rgba(255,70,70,0.2); }
+.logo-upload-area {
+  border: 1.5px dashed rgba(255,255,255,0.18);
+  border-radius: 8px; padding: 14px 10px;
+  text-align: center; cursor: pointer; position: relative;
+  transition: border-color 0.15s, background 0.15s;
+}
+.logo-upload-area:hover { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.03); }
+.logo-upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.upload-strong { display: block; color: rgba(255,255,255,0.65); font-size: 0.8rem; font-weight: 600; margin-bottom: 2px; }
+.upload-hint { color: rgba(255,255,255,0.3); font-size: 0.72rem; }
+
+/* Toggle */
+.toggle-row { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+.toggle-label { font-size: 0.82rem; color: rgba(255,255,255,0.6); }
+.toggle-switch { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track {
+  position: absolute; inset: 0; background: rgba(255,255,255,0.12);
+  border-radius: 22px; cursor: pointer; transition: background 0.2s;
+}
+.toggle-track::after {
+  content: ''; position: absolute;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; top: 3px; left: 3px; transition: transform 0.2s;
+}
+.toggle-switch input:checked + .toggle-track { background: var(--accent); }
+.toggle-switch input:checked + .toggle-track::after { transform: translateX(16px); background: #001a4a; }
+
+/* ── EDITABLE TEXT ─── */
+[contenteditable] { outline: none; }
+body.edit-mode [contenteditable] {
+  outline: 2px dashed rgba(255,255,255,0.28);
+  border-radius: 3px; cursor: text;
+}
+body.edit-mode [contenteditable]:hover { outline-color: var(--accent); }
+body.edit-mode [contenteditable]:focus {
+  outline: 2px solid var(--accent);
+  background: rgba(255,255,255,0.05);
+}
+
+/* ── INPUT SCREEN ─── */
+#input-screen {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 24px; position: relative; overflow: hidden;
+}
+.blob { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.025); pointer-events: none; }
+
+.logo-row { display: flex; align-items: center; gap: 14px; margin-bottom: 36px; }
+#logo-display { max-height: 54px; max-width: 180px; object-fit: contain; display: none; }
+#logo-initials {
+  width: 46px; height: 52px;
+  clip-path: polygon(50% 0%, 100% 18%, 100% 60%, 50% 100%, 0% 60%, 0% 18%);
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 900; color: var(--bg-dark); flex-shrink: 0;
+}
+.org-name {
+  font-family: 'Playfair Display', serif; font-size: 1.6rem;
+  font-weight: 900; color: #fff; line-height: 1;
+}
+.org-tag {
+  font-size: 0.6rem; color: var(--accent); letter-spacing: 0.18em;
+  text-transform: uppercase; font-weight: 600; margin-top: 3px;
 }
 
 .input-card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 16px;
-  padding: 40px 36px;
-  width: 100%;
-  max-width: 560px;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; padding: 36px 32px;
+  width: 100%; max-width: 540px; box-shadow: 0 20px 70px rgba(0,0,0,0.3);
 }
+.card-title { font-family: 'Playfair Display', serif; font-size: 1.45rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.card-sub { color: rgba(255,255,255,0.4); font-size: 0.87rem; line-height: 1.6; margin-bottom: 22px; }
 
-.card-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 6px;
-}
-
-.card-sub {
-  color: rgba(255,255,255,0.45);
-  font-size: 0.88rem;
-  line-height: 1.6;
-  margin-bottom: 24px;
-}
-
-.textarea-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.textarea-label {
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.4);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-weight: 700;
-}
-
-#name-count {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: rgba(255,255,255,0.25);
-  transition: color 0.2s;
-}
-
-#name-count.has-names { color: #FFD100; }
+.ta-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.ta-label { font-size: 0.62rem; color: rgba(255,255,255,0.35); letter-spacing: 0.15em; text-transform: uppercase; font-weight: 700; }
+#name-count { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.2); transition: color 0.2s; }
+#name-count.has { color: var(--accent); }
 
 #names-textarea {
-  width: 100%;
-  background: rgba(0,0,0,0.25);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 8px;
-  padding: 14px 16px;
-  color: #fff;
-  font-family: 'Barlow', sans-serif;
-  font-size: 0.92rem;
-  line-height: 1.7;
-  resize: vertical;
-  margin-bottom: 20px;
-  display: block;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  outline: none;
-  min-height: 220px;
+  width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 13px 15px; color: #fff;
+  font-family: 'Barlow', sans-serif; font-size: 0.9rem; line-height: 1.7;
+  resize: vertical; margin-bottom: 18px; outline: none; min-height: 200px;
+  transition: border-color 0.2s;
 }
-
-#names-textarea::placeholder { color: rgba(255,255,255,0.2); }
-#names-textarea:focus {
-  border-color: rgba(255,209,0,0.5);
-  box-shadow: 0 0 0 3px rgba(255,209,0,0.1);
-}
+#names-textarea::placeholder { color: rgba(255,255,255,0.18); }
+#names-textarea:focus { border-color: rgba(255,255,255,0.28); }
 
 #load-btn {
-  width: 100%;
-  background: linear-gradient(135deg, #FFD100 0%, #ffc000 100%);
-  color: #001a5c;
-  border: none;
-  border-radius: 6px;
-  font-family: 'Barlow', sans-serif;
-  font-weight: 900;
-  font-size: 1rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 16px 44px;
-  cursor: pointer;
-  box-shadow: 0 6px 28px rgba(255,209,0,0.35);
-  transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+  width: 100%; background: var(--accent); color: var(--bg-dark);
+  border: none; border-radius: 6px; font-family: 'Barlow', sans-serif;
+  font-weight: 900; font-size: 0.95rem; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 15px 44px; cursor: pointer;
+  transition: filter 0.12s, transform 0.12s;
 }
+#load-btn:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+#load-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-#load-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  filter: brightness(1.06);
-  box-shadow: 0 10px 36px rgba(255,209,0,0.45);
-}
+.footer-note { margin-top: 18px; font-size: 0.67rem; color: rgba(255,255,255,0.18); letter-spacing: 0.08em; text-align: center; }
 
-#load-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-#min-warning {
-  margin-top: 10px;
-  font-size: 0.78rem;
-  color: rgba(255,150,100,0.8);
-  text-align: center;
-  display: none;
-}
-
-.footer-note {
-  margin-top: 20px;
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.2);
-  letter-spacing: 0.1em;
-  text-align: center;
-}
-
-/* ── PICKER SCREEN ────────────────────────────── */
+/* ── PICKER SCREEN ─── */
 #picker-screen {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  padding-bottom: 60px;
-  position: relative;
-  overflow: hidden;
+  display: none; flex-direction: column; align-items: center;
+  min-height: 100vh; padding-bottom: 60px; position: relative; overflow: hidden;
 }
-
-.grid-overlay {
-  position: absolute;
-  inset: 0;
-  opacity: 0.03;
+.grid-bg {
+  position: absolute; inset: 0; opacity: 0.025;
   background-image:
-    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.5) 40px, rgba(255,255,255,0.5) 41px),
-    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.5) 40px, rgba(255,255,255,0.5) 41px);
+    repeating-linear-gradient(0deg, transparent, transparent 40px, #fff 40px, #fff 41px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, #fff 40px, #fff 41px);
   pointer-events: none;
 }
 
-/* Header */
 .picker-header {
-  width: 100%;
-  background: rgba(0,10,40,0.5);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,209,0,0.2);
-  padding: 18px 40px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 48px;
-  position: relative;
-  z-index: 5;
+  width: 100%; background: rgba(0,0,0,0.35); backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.1); padding: 16px 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 44px; position: relative; z-index: 5;
 }
-
-.header-logo { display: flex; align-items: center; gap: 14px; }
-
-.header-shield {
-  width: 40px; height: 46px;
+.ph-logo { display: flex; align-items: center; gap: 12px; }
+#ph-logo-img { max-height: 40px; max-width: 160px; object-fit: contain; display: none; }
+#ph-logo-shield {
+  width: 38px; height: 44px;
   clip-path: polygon(50% 0%, 100% 18%, 100% 60%, 50% 100%, 0% 60%, 0% 18%);
-  background: linear-gradient(160deg, #FFD100, #ffc200);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; font-weight: 900; color: #001a5c;
+  background: var(--accent); display: flex; align-items: center; justify-content: center;
+  font-size: 19px; font-weight: 900; color: var(--bg-dark);
 }
-
-.header-right {
-  display: flex; align-items: center; gap: 12px;
-  font-size: 0.72rem;
-  color: rgba(255,255,255,0.4);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-weight: 600;
+.ph-org-name { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 900; color: #fff; line-height: 1; }
+.ph-org-tag { font-size: 0.58rem; color: var(--accent); letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; margin-top: 2px; }
+.ph-right { display: flex; align-items: center; gap: 12px; }
+.ph-event-label { font-size: 0.7rem; color: rgba(255,255,255,0.35); letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+#back-btn {
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.55); border-radius: 4px; padding: 5px 14px; cursor: pointer;
+  font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 0.68rem;
+  letter-spacing: 0.08em; text-transform: uppercase; transition: all 0.15s;
 }
+#back-btn:hover { background: rgba(255,255,255,0.13); color: #fff; }
 
-#edit-btn {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.6);
-  border-radius: 4px;
-  padding: 5px 14px;
-  cursor: pointer;
-  font-family: 'Barlow', sans-serif;
-  font-weight: 600;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  transition: all 0.15s;
-}
-#edit-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
-
-/* Main content */
 .picker-content {
-  width: 100%;
-  max-width: 780px;
-  padding: 0 24px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 36px;
-  position: relative;
-  z-index: 2;
+  width: 100%; max-width: 760px; padding: 0 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 32px;
+  position: relative; z-index: 2;
 }
 
-/* Counter pills */
-.counters {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
+.counters { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 .counter-pill {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px;
-  padding: 12px 28px;
-  text-align: center;
-  min-width: 110px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 12px 26px; text-align: center; min-width: 106px;
 }
+.counter-val { font-size: 1.9rem; font-weight: 900; line-height: 1; }
+.counter-lbl { font-size: 0.62rem; color: rgba(255,255,255,0.38); letter-spacing: 0.13em; text-transform: uppercase; margin-top: 4px; }
 
-.counter-val {
-  font-size: 2rem;
-  font-weight: 900;
-  font-family: 'Barlow', sans-serif;
-  line-height: 1;
-}
-
-.counter-label {
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.4);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  margin-top: 4px;
-}
-
-/* Stage */
 .stage {
-  width: 100%;
-  min-height: 220px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 24px;
-  position: relative;
-  overflow: hidden;
-  transition: box-shadow 0.6s ease;
+  width: 100%; min-height: 210px; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09); border-radius: 16px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 38px 24px; position: relative; overflow: hidden; transition: box-shadow 0.5s;
 }
+.stage.glow { box-shadow: 0 0 60px color-mix(in srgb, var(--accent) 25%, transparent); }
+#confetti-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
 
-.stage.revealed {
-  box-shadow: 0 0 60px rgba(255,209,0,0.12), inset 0 0 60px rgba(255,209,0,0.03);
-}
+.phase { text-align: center; position: relative; z-index: 5; }
+.idle-icon { font-size: 2.6rem; margin-bottom: 10px; }
+.idle-text { color: rgba(255,255,255,0.32); font-size: 0.95rem; font-weight: 300; letter-spacing: 0.05em; }
 
-#confetti-canvas {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 10;
-}
-
-/* Stage states */
-.stage-idle, .stage-rolling, .stage-revealed, .stage-done {
-  text-align: center;
-  position: relative;
-  z-index: 5;
-}
-
-.stage-idle .idle-icon { font-size: 2.8rem; margin-bottom: 12px; }
-.stage-idle .idle-text {
-  color: rgba(255,255,255,0.35);
-  font-size: 1rem;
-  font-weight: 300;
-  letter-spacing: 0.06em;
-}
-
-.rolling-label {
-  font-size: 0.65rem;
-  color: #FFD100;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  font-weight: 700;
-  margin-bottom: 16px;
-}
-
+.stage-lbl { font-size: 0.62rem; color: var(--accent); letter-spacing: 0.22em; text-transform: uppercase; font-weight: 800; margin-bottom: 14px; }
 #rolling-name {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.6rem, 5vw, 2.8rem);
-  font-weight: 700;
-  color: rgba(255,255,255,0.5);
-  letter-spacing: 0.02em;
-  min-height: 60px;
-  animation: flicker 0.06s linear infinite;
+  font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 5vw, 2.6rem);
+  font-weight: 700; color: rgba(255,255,255,0.45); min-height: 58px;
+  animation: flicker 0.07s linear infinite;
 }
-
-@keyframes flicker {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-.selected-label {
-  font-size: 0.65rem;
-  color: #FFD100;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  font-weight: 800;
-  margin-bottom: 14px;
-}
+@keyframes flicker { 0%,100%{opacity:1}50%{opacity:.65} }
 
 #winner-name {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(2rem, 6vw, 3.4rem);
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: 0.01em;
-  line-height: 1.1;
-  text-shadow: 0 0 40px rgba(255,209,0,0.4), 0 2px 20px rgba(0,0,0,0.5);
+  font-family: 'Playfair Display', serif; font-size: clamp(1.9rem, 6vw, 3.2rem);
+  font-weight: 900; color: #fff; line-height: 1.1;
+  text-shadow: 0 0 40px color-mix(in srgb, var(--accent) 50%, transparent);
 }
-
 .winner-badge {
-  margin-top: 16px;
-  display: inline-block;
-  background: linear-gradient(135deg, #FFD100, #ffc200);
-  border-radius: 20px;
-  padding: 4px 18px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: #001a5c;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  margin-top: 14px; display: inline-block; background: var(--accent);
+  border-radius: 20px; padding: 4px 18px; font-size: 0.68rem;
+  font-weight: 800; color: var(--bg-dark); letter-spacing: 0.1em; text-transform: uppercase;
 }
-
-@keyframes cardReveal {
-  from { opacity: 0; transform: scale(0.7) translateY(30px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
+@keyframes pop {
+  from { opacity:0; transform:scale(0.72) translateY(28px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
 }
+.pop-in { animation: pop 0.48s cubic-bezier(0.34,1.56,0.64,1) both; }
 
-.stage-revealed { animation: cardReveal 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+.done-icon { font-size: 2.4rem; margin-bottom: 10px; }
+.done-title { font-family: 'Playfair Display', serif; font-size: 1.45rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; }
+.done-sub { color: rgba(255,255,255,0.38); font-size: 0.83rem; }
 
-.done-icon { font-size: 2.5rem; margin-bottom: 10px; }
-.done-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #FFD100;
-  margin-bottom: 6px;
-}
-.done-sub { color: rgba(255,255,255,0.4); font-size: 0.85rem; }
-
-/* Buttons */
-.btn-row {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-}
-
+.btn-row { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 #draw-btn {
-  background: linear-gradient(135deg, #FFD100 0%, #ffc000 100%);
-  color: #001a5c;
-  border: none;
-  border-radius: 6px;
-  font-family: 'Barlow', sans-serif;
-  font-weight: 900;
-  font-size: 1.15rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 18px 52px;
-  cursor: pointer;
-  box-shadow: 0 6px 28px rgba(255,209,0,0.35), 0 2px 6px rgba(0,0,0,0.3);
-  transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+  background: var(--accent); color: var(--bg-dark); border: none; border-radius: 6px;
+  font-family: 'Barlow', sans-serif; font-weight: 900; font-size: 1.1rem;
+  letter-spacing: 0.1em; text-transform: uppercase; padding: 17px 50px; cursor: pointer;
+  box-shadow: 0 6px 28px color-mix(in srgb, var(--accent) 35%, transparent);
+  transition: filter 0.12s, transform 0.12s;
 }
-
-#draw-btn:hover:not(:disabled) {
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 10px 36px rgba(255,209,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
-  filter: brightness(1.06);
-}
-
+#draw-btn:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-2px); }
 #draw-btn:active:not(:disabled) { transform: scale(0.98); }
-
-#draw-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background: #ccc;
-  color: #666;
-  box-shadow: none;
-}
+#draw-btn:disabled { opacity: 0.38; cursor: not-allowed; background: #aaa; color: #555; box-shadow: none; }
 
 #reset-btn {
-  background: transparent;
-  border: 1.5px solid rgba(255,255,255,0.3);
-  color: rgba(255,255,255,0.6);
-  border-radius: 6px;
-  font-family: 'Barlow', sans-serif;
-  font-weight: 600;
-  font-size: 0.78rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 8px 22px;
-  cursor: pointer;
-  transition: all 0.15s;
+  background: transparent; border: 1.5px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.5); border-radius: 6px; font-family: 'Barlow', sans-serif;
+  font-weight: 600; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 8px 22px; cursor: pointer; transition: all 0.15s;
 }
+#reset-btn:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
 
-#reset-btn:hover {
-  border-color: rgba(255,255,255,0.7);
-  color: #fff;
-  background: rgba(255,255,255,0.07);
-}
-
-/* Previously selected */
 #prev-section { width: 100%; }
+.prev-hdr { font-size: 0.62rem; color: rgba(255,255,255,0.3); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.names-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 7px; max-height: 260px; overflow-y: auto; }
+.name-tag { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 4px; padding: 6px 13px; color: rgba(255,255,255,0.5); font-size: 0.8rem; display: flex; align-items: center; gap: 8px; }
+.name-tag.latest { background: color-mix(in srgb, var(--accent) 12%, transparent); border-color: color-mix(in srgb, var(--accent) 35%, transparent); color: var(--accent); font-weight: 600; }
+.tag-num { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.28); flex-shrink: 0; }
+.name-tag.latest .tag-num { background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); }
 
-.prev-header {
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.35);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  font-weight: 700;
-  margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-.names-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 8px;
-  max-height: 280px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.name-tag {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 4px;
-  padding: 6px 14px;
-  color: rgba(255,255,255,0.55);
-  font-size: 0.82rem;
-  font-weight: 400;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background 0.15s;
-}
-
-.name-tag.latest {
-  background: rgba(255,209,0,0.12);
-  border-color: rgba(255,209,0,0.3);
-  color: #FFD100;
-  font-weight: 600;
-}
-
-.name-tag-num {
-  width: 20px; height: 20px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.06);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.6rem; font-weight: 700;
-  color: rgba(255,255,255,0.3);
-  flex-shrink: 0;
-}
-
-.name-tag.latest .name-tag-num {
-  background: rgba(255,209,0,0.2);
-  color: #FFD100;
-}
-
-/* ── MODAL ─────────────────────────────────────── */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 100;
-  animation: fadeIn 0.2s ease;
-  display: none;
-}
-
-.modal-overlay.open { display: flex; }
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.modal {
-  background: #001f5b;
-  border: 1px solid rgba(255,209,0,0.3);
-  border-radius: 12px;
-  padding: 36px 44px;
-  text-align: center;
-  max-width: 360px;
-  width: 90%;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
-}
-
-.modal-icon { font-size: 2rem; margin-bottom: 12px; }
-
-.modal-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 10px;
-}
-
-.modal-body {
-  color: rgba(255,255,255,0.5);
-  font-size: 0.88rem;
-  margin-bottom: 28px;
-  line-height: 1.6;
-}
-
-.modal-btns { display: flex; gap: 12px; justify-content: center; }
-
-.modal-cancel {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: #fff;
-  border-radius: 6px;
-  padding: 10px 24px;
-  cursor: pointer;
-  font-family: 'Barlow', sans-serif;
-  font-weight: 600;
-  font-size: 0.85rem;
-  letter-spacing: 0.05em;
-  transition: background 0.15s;
-}
-.modal-cancel:hover { background: rgba(255,255,255,0.14); }
-
-.modal-confirm {
-  background: linear-gradient(135deg, #FFD100, #ffc200);
-  border: none;
-  color: #001a5c;
-  border-radius: 6px;
-  padding: 10px 24px;
-  cursor: pointer;
-  font-family: 'Barlow', sans-serif;
-  font-weight: 800;
-  font-size: 0.85rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  transition: filter 0.12s;
-}
-.modal-confirm:hover { filter: brightness(1.07); }
+/* ── MODAL ─── */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 200; }
+.modal-bg.open { display: flex; }
+.modal { background: #001840; border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 34px 40px; text-align: center; max-width: 340px; width: 90%; }
+.modal-ico { font-size: 1.9rem; margin-bottom: 10px; }
+.modal-ttl { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.modal-msg { color: rgba(255,255,255,0.45); font-size: 0.85rem; line-height: 1.55; margin-bottom: 24px; }
+.modal-btns { display: flex; gap: 10px; justify-content: center; }
+.m-cancel { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.18); color: #fff; border-radius: 5px; padding: 9px 22px; cursor: pointer; font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 0.83rem; transition: background 0.15s; }
+.m-cancel:hover { background: rgba(255,255,255,0.13); }
+.m-confirm { background: var(--accent); border: none; color: var(--bg-dark); border-radius: 5px; padding: 9px 22px; cursor: pointer; font-family: 'Barlow', sans-serif; font-weight: 800; font-size: 0.83rem; letter-spacing: 0.07em; text-transform: uppercase; transition: filter 0.12s; }
+.m-confirm:hover { filter: brightness(1.08); }
 </style>
 </head>
 <body>
 
-<!-- ══ INPUT SCREEN ══════════════════════════════ -->
+<!-- Customize button -->
+<button id="cust-btn">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  Customize
+</button>
+
+<!-- Customizer Panel -->
+<div id="customizer">
+  <div class="cust-header">
+    <span class="cust-header-title">Customize</span>
+    <button id="cust-close">×</button>
+  </div>
+  <div class="cust-body">
+
+    <div class="cust-section">
+      <div class="cust-section-label">Logo</div>
+      <img id="logo-preview" src="" alt="Logo preview">
+      <button class="logo-remove" id="logo-remove">Remove logo</button>
+      <div class="logo-upload-area">
+        <input type="file" id="logo-file" accept="image/*">
+        <span class="upload-strong">Upload your logo</span>
+        <span class="upload-hint">PNG, JPG, or SVG</span>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">Show logo</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle-logo" checked>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="cust-section">
+      <div class="cust-section-label">Colors</div>
+      <div class="color-row">
+        <span class="color-row-label">Background</span>
+        <label class="color-swatch"><input type="color" id="color-bg" value="#002b6b"></label>
+      </div>
+      <div class="color-row">
+        <span class="color-row-label">Accent &amp; buttons</span>
+        <label class="color-swatch"><input type="color" id="color-accent" value="#FFD100"></label>
+      </div>
+    </div>
+
+    <div class="cust-section">
+      <div class="cust-section-label">Text</div>
+      <p style="font-size:0.76rem;color:rgba(255,255,255,0.3);line-height:1.6;">
+        While this panel is open, click any text on the page with a dashed outline to edit it in place.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ INPUT SCREEN ══ -->
 <div id="input-screen">
-  <div class="bg-blob" style="width:500px;height:500px;top:-150px;right:-150px;"></div>
-  <div class="bg-blob" style="width:350px;height:350px;bottom:-100px;left:-100px;"></div>
+  <div class="blob" style="width:480px;height:480px;top:-160px;right:-160px;"></div>
+  <div class="blob" style="width:340px;height:340px;bottom:-100px;left:-100px;"></div>
 
   <div class="logo-row">
-    <div class="shield">N</div>
+    <img id="logo-display" src="" alt="Logo">
+    <div id="logo-initials">N</div>
     <div>
-      <div class="logo-name">Nationwide</div>
-      <div class="logo-tag">On Your Side®</div>
+      <div class="org-name" contenteditable="true" spellcheck="false" id="org-name-el">Nationwide</div>
+      <div class="org-tag" contenteditable="true" spellcheck="false" id="org-tag-el">On Your Side®</div>
     </div>
   </div>
 
   <div class="input-card">
-    <div class="card-title">Team Recognition Draw</div>
-    <div class="card-sub">Paste your names below — one per line — then press Load Names to begin.</div>
-
-    <div class="textarea-header">
-      <span class="textarea-label">Names</span>
+    <div class="card-title" contenteditable="true" spellcheck="false">Team Recognition Draw</div>
+    <div class="card-sub" contenteditable="true" spellcheck="false">Paste your names below — one per line — then press Load Names to begin.</div>
+    <div class="ta-header">
+      <span class="ta-label" contenteditable="true" spellcheck="false">Names</span>
       <span id="name-count">No names yet</span>
     </div>
-
-    <textarea id="names-textarea" rows="12" placeholder="John Smith&#10;Jane Doe&#10;Alex Johnson&#10;..."></textarea>
-
+    <textarea id="names-textarea" rows="10" placeholder="John Smith&#10;Jane Doe&#10;Alex Johnson&#10;..."></textarea>
     <button id="load-btn" disabled>Load Names &amp; Start Draw</button>
-    <div id="min-warning">Add at least 2 names to continue.</div>
   </div>
 
-  <div class="footer-note">Duplicates are automatically removed · Names are drawn without replacement</div>
+  <div class="footer-note" contenteditable="true" spellcheck="false">Duplicates removed automatically · Names drawn without replacement</div>
 </div>
 
-<!-- ══ PICKER SCREEN ═════════════════════════════ -->
+<!-- ══ PICKER SCREEN ══ -->
 <div id="picker-screen">
-  <div class="grid-overlay"></div>
-  <div class="bg-blob" style="width:600px;height:600px;top:-200px;right:-200px;opacity:0.4;"></div>
-  <div class="bg-blob" style="width:400px;height:400px;bottom:-100px;left:-150px;"></div>
+  <div class="grid-bg"></div>
+  <div class="blob" style="width:560px;height:560px;top:-180px;right:-180px;opacity:0.5;"></div>
+  <div class="blob" style="width:380px;height:380px;bottom:-100px;left:-130px;"></div>
 
   <div class="picker-header">
-    <div class="header-logo">
-      <div class="header-shield">N</div>
+    <div class="ph-logo">
+      <img id="ph-logo-img" src="" alt="Logo">
+      <div id="ph-logo-shield">N</div>
       <div>
-        <div style="font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:900;color:#fff;line-height:1;">Nationwide</div>
-        <div style="font-size:0.62rem;color:#FFD100;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;margin-top:2px;">On Your Side®</div>
+        <div class="ph-org-name" id="ph-org-name">Nationwide</div>
+        <div class="ph-org-tag" id="ph-org-tag">On Your Side®</div>
       </div>
     </div>
-    <div class="header-right">
-      Team Recognition Draw
-      <button id="edit-btn">Edit Names</button>
+    <div class="ph-right">
+      <span class="ph-event-label" contenteditable="true" spellcheck="false">Team Recognition Draw</span>
+      <button id="back-btn">Edit Names</button>
     </div>
   </div>
 
   <div class="picker-content">
-
-    <!-- Counters -->
     <div class="counters">
       <div class="counter-pill">
-        <div class="counter-val" id="cnt-remaining" style="color:#FFD100;">0</div>
-        <div class="counter-label">Remaining</div>
+        <div class="counter-val" id="cnt-remaining" style="color:var(--accent);">0</div>
+        <div class="counter-lbl">Remaining</div>
       </div>
       <div class="counter-pill">
         <div class="counter-val" id="cnt-selected" style="color:#7cb8ff;">0</div>
-        <div class="counter-label">Selected</div>
+        <div class="counter-lbl">Selected</div>
       </div>
       <div class="counter-pill">
-        <div class="counter-val" id="cnt-total" style="color:rgba(255,255,255,0.4);">0</div>
-        <div class="counter-label">Total</div>
+        <div class="counter-val" id="cnt-total" style="color:rgba(255,255,255,0.35);">0</div>
+        <div class="counter-lbl">Total</div>
       </div>
     </div>
 
-    <!-- Stage -->
     <div class="stage" id="stage">
       <canvas id="confetti-canvas"></canvas>
-
-      <!-- idle -->
-      <div class="stage-idle" id="phase-idle">
+      <div class="phase" id="ph-idle" style="display:flex;flex-direction:column;align-items:center;">
         <div class="idle-icon">🎯</div>
-        <div class="idle-text">Press the button to draw a name</div>
+        <div class="idle-text" contenteditable="true" spellcheck="false">Press the button to draw a name</div>
       </div>
-
-      <!-- rolling -->
-      <div class="stage-rolling" id="phase-rolling" style="display:none;">
-        <div class="rolling-label">Drawing...</div>
+      <div class="phase" id="ph-rolling" style="display:none;">
+        <div class="stage-lbl" contenteditable="true" spellcheck="false">Drawing…</div>
         <div id="rolling-name"></div>
       </div>
-
-      <!-- revealed -->
-      <div class="stage-revealed" id="phase-revealed" style="display:none;">
-        <div class="selected-label">✦ Selected ✦</div>
+      <div class="phase" id="ph-revealed" style="display:none;">
+        <div class="stage-lbl" contenteditable="true" spellcheck="false">✦ Selected ✦</div>
         <div id="winner-name"></div>
-        <div class="winner-badge">Winner</div>
+        <div class="winner-badge" contenteditable="true" spellcheck="false">Winner</div>
       </div>
-
-      <!-- all done -->
-      <div id="phase-done" style="display:none;text-align:center;position:relative;z-index:5;">
+      <div class="phase" id="ph-done" style="display:none;">
         <div class="done-icon">🏆</div>
-        <div class="done-title">All Names Drawn!</div>
-        <div class="done-sub">Every team member has been selected.</div>
+        <div class="done-title" contenteditable="true" spellcheck="false">All Names Drawn!</div>
+        <div class="done-sub" contenteditable="true" spellcheck="false">Every team member has been selected.</div>
       </div>
     </div>
 
-    <!-- Buttons -->
     <div class="btn-row">
       <button id="draw-btn">Draw a Name</button>
       <button id="reset-btn">Reset All Names</button>
     </div>
 
-    <!-- Previously selected -->
     <div id="prev-section" style="display:none;">
-      <div class="prev-header" id="prev-header"></div>
+      <div class="prev-hdr" id="prev-hdr"></div>
       <div class="names-grid" id="names-grid"></div>
     </div>
-
   </div>
 </div>
 
-<!-- ══ RESET MODAL ═══════════════════════════════ -->
-<div class="modal-overlay" id="modal">
+<!-- Modal -->
+<div class="modal-bg" id="modal">
   <div class="modal">
-    <div class="modal-icon">⚠️</div>
-    <div class="modal-title">Reset the Draw?</div>
-    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-ico">⚠️</div>
+    <div class="modal-ttl">Reset the Draw?</div>
+    <div class="modal-msg" id="modal-msg"></div>
     <div class="modal-btns">
-      <button class="modal-cancel" id="modal-cancel">Cancel</button>
-      <button class="modal-confirm" id="modal-confirm">Yes, Reset</button>
+      <button class="m-cancel" id="m-cancel">Cancel</button>
+      <button class="m-confirm" id="m-confirm">Yes, Reset</button>
     </div>
   </div>
 </div>
 
 <script>
-const CONFETTI_COLORS = ["#FFD100","#003087","#ffffff","#ffc200","#1a4db5"];
+const $ = id => document.getElementById(id);
 
-// ── State ────────────────────────────────────────
-let allNames = [];
-let pool = [];
-let selected = [];
-let phase = "idle"; // idle | rolling | revealed
-let rolling = false;
-let rollTimer = null;
-let confettiAnim = null;
-let confettiParticles = [];
+let allNames = [], pool = [], selected = [];
+let rolling = false, rollTimer = null, confAnim = null, confParts = [];
+let logoDataURL = null;
 
-// ── Elements ─────────────────────────────────────
-const inputScreen  = document.getElementById('input-screen');
-const pickerScreen = document.getElementById('picker-screen');
-const textarea     = document.getElementById('names-textarea');
-const nameCount    = document.getElementById('name-count');
-const loadBtn      = document.getElementById('load-btn');
-const minWarn      = document.getElementById('min-warning');
-const editBtn      = document.getElementById('edit-btn');
-const drawBtn      = document.getElementById('draw-btn');
-const resetBtn     = document.getElementById('reset-btn');
-const stage        = document.getElementById('stage');
-const canvas       = document.getElementById('confetti-canvas');
-const ctx          = canvas.getContext('2d');
+// ── Customizer open/close ──
+$('cust-btn').addEventListener('click', () => toggleCust(true));
+$('cust-close').addEventListener('click', () => toggleCust(false));
+function toggleCust(open) {
+  $('customizer').classList.toggle('open', open);
+  document.body.classList.toggle('edit-mode', open);
+}
 
-const phaseIdle     = document.getElementById('phase-idle');
-const phaseRolling  = document.getElementById('phase-rolling');
-const phaseRevealed = document.getElementById('phase-revealed');
-const phaseDone     = document.getElementById('phase-done');
-const rollingName   = document.getElementById('rolling-name');
-const winnerName    = document.getElementById('winner-name');
+// ── Logo upload ──
+$('logo-file').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => { logoDataURL = ev.target.result; applyLogo(); };
+  reader.readAsDataURL(file);
+});
+$('logo-remove').addEventListener('click', () => {
+  logoDataURL = null; applyLogo(); $('logo-file').value = '';
+});
+$('toggle-logo').addEventListener('change', applyLogo);
 
-const cntRemaining  = document.getElementById('cnt-remaining');
-const cntSelected   = document.getElementById('cnt-selected');
-const cntTotal      = document.getElementById('cnt-total');
+function applyLogo() {
+  const has  = !!logoDataURL;
+  const show = $('toggle-logo').checked;
+  $('logo-display').src              = logoDataURL || '';
+  $('logo-display').style.display    = has && show ? 'block' : 'none';
+  $('logo-initials').style.display   = !has && show ? 'flex' : 'none';
+  $('ph-logo-img').src               = logoDataURL || '';
+  $('ph-logo-img').style.display     = has && show ? 'block' : 'none';
+  $('ph-logo-shield').style.display  = !has && show ? 'flex' : 'none';
+  $('logo-preview').src              = logoDataURL || '';
+  $('logo-preview').style.display    = has ? 'block' : 'none';
+  $('logo-remove').style.display     = has ? 'block' : 'none';
+}
 
-const prevSection   = document.getElementById('prev-section');
-const prevHeader    = document.getElementById('prev-header');
-const namesGrid     = document.getElementById('names-grid');
+// ── Colors ──
+function setRoot(name, val) { document.documentElement.style.setProperty(name, val); }
+$('color-bg').addEventListener('input', e => {
+  setRoot('--bg', e.target.value);
+  document.body.style.background = 'linear-gradient(150deg, var(--bg-dark) 0%, var(--bg) 50%, var(--bg-mid) 100%)';
+});
+$('color-accent').addEventListener('input', e => setRoot('--accent', e.target.value));
 
-const modal         = document.getElementById('modal');
-const modalBody     = document.getElementById('modal-body');
-const modalCancel   = document.getElementById('modal-cancel');
-const modalConfirm  = document.getElementById('modal-confirm');
+// ── Org name mirrors to picker header ──
+$('org-name-el').addEventListener('input', () => $('ph-org-name').textContent = $('org-name-el').textContent);
+$('org-tag-el').addEventListener('input',  () => $('ph-org-tag').textContent  = $('org-tag-el').textContent);
 
-// ── Parse names ──────────────────────────────────
+// Prevent Enter in contenteditable
+document.addEventListener('keydown', e => {
+  if (e.target.isContentEditable && e.key === 'Enter') e.preventDefault();
+});
+
+// ── Name parsing ──
 function getParsed() {
-  return [...new Set(
-    textarea.value.split('\n').map(n => n.trim()).filter(n => n.length > 0)
-  )];
+  return [...new Set($('names-textarea').value.split('\n').map(n => n.trim()).filter(Boolean))];
 }
-
-textarea.addEventListener('input', () => {
-  const parsed = getParsed();
-  if (parsed.length === 0) {
-    nameCount.textContent = 'No names yet';
-    nameCount.classList.remove('has-names');
-    loadBtn.disabled = true;
-    minWarn.style.display = 'none';
-  } else {
-    nameCount.textContent = `${parsed.length} name${parsed.length !== 1 ? 's' : ''} detected`;
-    nameCount.classList.add('has-names');
-    loadBtn.disabled = parsed.length < 2;
-    minWarn.style.display = parsed.length === 1 ? 'block' : 'none';
-    loadBtn.textContent = `Load ${parsed.length} Names & Start Draw`;
-  }
+$('names-textarea').addEventListener('input', () => {
+  const p = getParsed();
+  $('name-count').className = p.length ? 'has' : '';
+  $('name-count').textContent = p.length ? `${p.length} name${p.length !== 1 ? 's' : ''} detected` : 'No names yet';
+  $('load-btn').disabled = p.length < 2;
+  $('load-btn').textContent = p.length >= 2 ? `Load ${p.length} Names & Start Draw` : 'Load Names & Start Draw';
 });
 
-// ── Load names ───────────────────────────────────
-loadBtn.addEventListener('click', () => {
-  const parsed = getParsed();
-  if (parsed.length < 2) return;
-  allNames = parsed;
-  pool = [...allNames];
-  selected = [];
-  phase = 'idle';
-  rolling = false;
-  stopConfetti();
-  showScreen('picker');
-  updateCounters();
-  showPhase('idle');
-  updatePrevSection();
-  drawBtn.disabled = false;
-  drawBtn.textContent = 'Draw a Name';
+$('load-btn').addEventListener('click', () => {
+  const p = getParsed(); if (p.length < 2) return;
+  allNames = p; pool = [...allNames]; selected = [];
+  rolling = false; stopConf();
+  showScreen('picker'); updateCounters(); showPhase('idle'); updatePrev();
+  $('draw-btn').disabled = false; $('draw-btn').textContent = 'Draw a Name';
 });
 
-// ── Edit names ───────────────────────────────────
-editBtn.addEventListener('click', () => {
-  stopConfetti();
-  if (rollTimer) clearInterval(rollTimer);
-  rolling = false;
-  showScreen('input');
+$('back-btn').addEventListener('click', () => {
+  stopConf(); if (rollTimer) clearInterval(rollTimer);
+  rolling = false; showScreen('input');
 });
 
-// ── Show screen ───────────────────────────────────
 function showScreen(s) {
-  inputScreen.style.display  = s === 'input'  ? 'flex' : 'none';
-  pickerScreen.style.display = s === 'picker' ? 'flex' : 'none';
+  $('input-screen').style.display  = s === 'input'  ? 'flex' : 'none';
+  $('picker-screen').style.display = s === 'picker' ? 'flex' : 'none';
 }
 
-// ── Phase display ─────────────────────────────────
 function showPhase(p) {
-  phaseIdle.style.display     = 'none';
-  phaseRolling.style.display  = 'none';
-  phaseRevealed.style.display = 'none';
-  phaseDone.style.display     = 'none';
-  stage.classList.remove('revealed');
-
-  if (p === 'idle')     { phaseIdle.style.display = 'flex'; phaseIdle.style.flexDirection = 'column'; phaseIdle.style.alignItems = 'center'; }
-  if (p === 'rolling')  { phaseRolling.style.display = 'block'; }
-  if (p === 'revealed') { phaseRevealed.style.display = 'block'; stage.classList.add('revealed'); }
-  if (p === 'done')     { phaseDone.style.display = 'block'; }
-}
-
-// ── Counters ──────────────────────────────────────
-function updateCounters() {
-  cntRemaining.textContent = pool.length;
-  cntSelected.textContent  = selected.length;
-  cntTotal.textContent     = allNames.length;
-}
-
-// ── Previous selected ─────────────────────────────
-function updatePrevSection() {
-  if (selected.length === 0) {
-    prevSection.style.display = 'none';
-    return;
+  ['ph-idle','ph-rolling','ph-revealed','ph-done'].forEach(id => $(''+id).style.display = 'none');
+  $('stage').classList.remove('glow');
+  $('ph-revealed').classList.remove('pop-in');
+  if (p === 'idle')    { $('ph-idle').style.display = 'flex'; }
+  if (p === 'rolling') { $('ph-rolling').style.display = 'block'; }
+  if (p === 'revealed') {
+    void $('ph-revealed').offsetWidth;
+    $('ph-revealed').classList.add('pop-in');
+    $('ph-revealed').style.display = 'block';
+    $('stage').classList.add('glow');
   }
-  prevSection.style.display = 'block';
-  prevHeader.textContent = `Previously Selected — ${selected.length} name${selected.length !== 1 ? 's' : ''}`;
-  namesGrid.innerHTML = selected.map((name, i) => `
-    <div class="name-tag ${i === 0 ? 'latest' : ''}">
-      <span class="name-tag-num">${selected.length - i}</span>
-      ${name}
-    </div>
-  `).join('');
+  if (p === 'done') { $('ph-done').style.display = 'block'; $('stage').classList.add('glow'); }
 }
 
-// ── Draw ──────────────────────────────────────────
-drawBtn.addEventListener('click', () => {
-  if (rolling || pool.length === 0) return;
-  rolling = true;
-  drawBtn.disabled = true;
-  drawBtn.textContent = 'Drawing...';
-  stopConfetti();
-  showPhase('rolling');
+function updateCounters() {
+  $('cnt-remaining').textContent = pool.length;
+  $('cnt-selected').textContent  = selected.length;
+  $('cnt-total').textContent     = allNames.length;
+}
 
+function updatePrev() {
+  if (!selected.length) { $('prev-section').style.display = 'none'; return; }
+  $('prev-section').style.display = 'block';
+  $('prev-hdr').textContent = `Previously Selected — ${selected.length} name${selected.length !== 1 ? 's' : ''}`;
+  $('names-grid').innerHTML = selected.map((n, i) => `
+    <div class="name-tag ${i === 0 ? 'latest' : ''}">
+      <span class="tag-num">${selected.length - i}</span>${n}
+    </div>`).join('');
+}
+
+$('draw-btn').addEventListener('click', () => {
+  if (rolling || !pool.length) return;
+  rolling = true; $('draw-btn').disabled = true; $('draw-btn').textContent = 'Drawing…';
+  stopConf(); showPhase('rolling');
   let ticks = 0;
-  const totalTicks = 28;
-
   rollTimer = setInterval(() => {
-    const rand = pool[Math.floor(Math.random() * pool.length)];
-    rollingName.textContent = rand;
-    ticks++;
-
-    if (ticks >= totalTicks) {
+    $('rolling-name').textContent = pool[Math.floor(Math.random() * pool.length)];
+    if (++ticks >= 28) {
       clearInterval(rollTimer);
       const idx = Math.floor(Math.random() * pool.length);
-      const winner = pool[idx];
-      pool.splice(idx, 1);
-
+      const winner = pool.splice(idx, 1)[0];
       setTimeout(() => {
-        winnerName.textContent = winner;
-        selected.unshift(winner);
-        rolling = false;
-
-        if (pool.length === 0) {
-          showPhase('done');
-          drawBtn.disabled = true;
-          drawBtn.textContent = 'All Done';
+        $('winner-name').textContent = winner;
+        selected.unshift(winner); rolling = false;
+        if (!pool.length) {
+          showPhase('done'); $('draw-btn').disabled = true; $('draw-btn').textContent = 'All Done';
         } else {
-          showPhase('revealed');
-          drawBtn.disabled = false;
-          drawBtn.textContent = 'Draw a Name';
+          showPhase('revealed'); $('draw-btn').disabled = false; $('draw-btn').textContent = 'Draw a Name';
         }
-
-        updateCounters();
-        updatePrevSection();
-        startConfetti();
-        setTimeout(() => stopConfetti(), 3000);
-      }, 120);
+        updateCounters(); updatePrev();
+        startConf(); setTimeout(stopConf, 3200);
+      }, 110);
     }
   }, 60);
 });
 
-// ── Reset modal ───────────────────────────────────
-resetBtn.addEventListener('click', () => {
-  modalBody.textContent = `This will restore all ${allNames.length} names and clear the selection history.`;
-  modal.classList.add('open');
+$('reset-btn').addEventListener('click', () => {
+  $('modal-msg').textContent = `Restore all ${allNames.length} names and clear selection history?`;
+  $('modal').classList.add('open');
 });
-modalCancel.addEventListener('click', () => modal.classList.remove('open'));
-modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
-modalConfirm.addEventListener('click', () => {
-  modal.classList.remove('open');
-  pool = [...allNames];
-  selected = [];
-  phase = 'idle';
-  rolling = false;
-  stopConfetti();
+$('m-cancel').addEventListener('click', () => $('modal').classList.remove('open'));
+$('modal').addEventListener('click', e => { if (e.target === $('modal')) $('modal').classList.remove('open'); });
+$('m-confirm').addEventListener('click', () => {
+  $('modal').classList.remove('open');
+  pool = [...allNames]; selected = []; rolling = false; stopConf();
   if (rollTimer) clearInterval(rollTimer);
-  showPhase('idle');
-  updateCounters();
-  updatePrevSection();
-  drawBtn.disabled = false;
-  drawBtn.textContent = 'Draw a Name';
+  showPhase('idle'); updateCounters(); updatePrev();
+  $('draw-btn').disabled = false; $('draw-btn').textContent = 'Draw a Name';
 });
 
-// ── Confetti ──────────────────────────────────────
-function startConfetti() {
-  canvas.width  = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-  confettiParticles = Array.from({ length: 80 }, () => ({
-    x: Math.random() * canvas.width,
-    y: -10,
-    vx: (Math.random() - 0.5) * 3,
-    vy: Math.random() * 3 + 2,
-    color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-    size: Math.random() * 8 + 4,
-    rotation: Math.random() * 360,
-    rotSpeed: (Math.random() - 0.5) * 6,
-    shape: Math.random() > 0.5 ? 'rect' : 'circle',
+// ── Confetti ──
+function startConf() {
+  const cv = $('confetti-canvas');
+  cv.width = cv.offsetWidth; cv.height = cv.offsetHeight;
+  const ctx2 = cv.getContext('2d');
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#FFD100';
+  confParts = Array.from({length: 90}, () => ({
+    x: Math.random() * cv.width, y: -10,
+    vx: (Math.random() - 0.5) * 3.5, vy: Math.random() * 3 + 1.8,
+    color: [accent, '#fff', '#ffffff99'][Math.floor(Math.random() * 3)],
+    size: Math.random() * 9 + 4,
+    rot: Math.random() * 360, rs: (Math.random() - 0.5) * 7,
+    shape: Math.random() > 0.45 ? 'rect' : 'circle',
   }));
-  if (confettiAnim) cancelAnimationFrame(confettiAnim);
-  drawConfetti();
-}
-
-function drawConfetti() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  confettiParticles.forEach(p => {
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    ctx.rotate(p.rotation * Math.PI / 180);
-    ctx.fillStyle = p.color;
-    ctx.globalAlpha = 0.85;
-    if (p.shape === 'rect') {
-      ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
-    } else {
-      ctx.beginPath();
-      ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-    p.x += p.vx;
-    p.y += p.vy;
-    p.vy += 0.05;
-    p.rotation += p.rotSpeed;
-  });
-  confettiParticles = confettiParticles.filter(p => p.y < canvas.height + 20);
-  if (confettiParticles.length > 0) {
-    confettiAnim = requestAnimationFrame(drawConfetti);
-  } else {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (confAnim) cancelAnimationFrame(confAnim);
+  function draw() {
+    const cv2 = $('confetti-canvas');
+    const c = cv2.getContext('2d');
+    c.clearRect(0, 0, cv2.width, cv2.height);
+    confParts.forEach(p => {
+      c.save(); c.translate(p.x, p.y); c.rotate(p.rot * Math.PI / 180);
+      c.fillStyle = p.color; c.globalAlpha = 0.88;
+      if (p.shape === 'rect') c.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+      else { c.beginPath(); c.arc(0,0,p.size/2,0,Math.PI*2); c.fill(); }
+      c.restore();
+      p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.rot += p.rs;
+    });
+    confParts = confParts.filter(p => p.y < cv2.height + 20);
+    if (confParts.length) confAnim = requestAnimationFrame(draw);
+    else c.clearRect(0, 0, cv2.width, cv2.height);
   }
+  draw();
 }
 
-function stopConfetti() {
-  if (confettiAnim) cancelAnimationFrame(confettiAnim);
-  confettiParticles = [];
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function stopConf() {
+  if (confAnim) cancelAnimationFrame(confAnim);
+  confParts = [];
+  const cv = $('confetti-canvas');
+  cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
 }
 
-// ── Init ──────────────────────────────────────────
+// ── Init ──
 showScreen('input');
+applyLogo();
 </script>
 </body>
 </html>
