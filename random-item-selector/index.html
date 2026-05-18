@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nationwide Team Recognition Draw</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Barlow', sans-serif;
+  background: linear-gradient(160deg, #001a5c 0%, #003087 45%, #00205b 100%);
+  min-height: 100vh;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* ── INPUT SCREEN ─────────────────────────────── */
+#input-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.02);
+  pointer-events: none;
+}
+
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 40px;
+}
+
+.shield {
+  width: 44px; height: 50px;
+  clip-path: polygon(50% 0%, 100% 18%, 100% 60%, 50% 100%, 0% 60%, 0% 18%);
+  background: linear-gradient(160deg, #FFD100, #ffc200);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 900; color: #001a5c;
+  flex-shrink: 0;
+}
+
+.logo-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+}
+
+.logo-tag {
+  font-size: 0.6rem;
+  color: #FFD100;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+.input-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+}
+
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.card-sub {
+  color: rgba(255,255,255,0.45);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.textarea-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.textarea-label {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+#name-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.25);
+  transition: color 0.2s;
+}
+
+#name-count.has-names { color: #FFD100; }
+
+#names-textarea {
+  width: 100%;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 14px 16px;
+  color: #fff;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  resize: vertical;
+  margin-bottom: 20px;
+  display: block;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  min-height: 220px;
+}
+
+#names-textarea::placeholder { color: rgba(255,255,255,0.2); }
+#names-textarea:focus {
+  border-color: rgba(255,209,0,0.5);
+  box-shadow: 0 0 0 3px rgba(255,209,0,0.1);
+}
+
+#load-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #FFD100 0%, #ffc000 100%);
+  color: #001a5c;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 900;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 16px 44px;
+  cursor: pointer;
+  box-shadow: 0 6px 28px rgba(255,209,0,0.35);
+  transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+}
+
+#load-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: 0 10px 36px rgba(255,209,0,0.45);
+}
+
+#load-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+#min-warning {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  color: rgba(255,150,100,0.8);
+  text-align: center;
+  display: none;
+}
+
+.footer-note {
+  margin-top: 20px;
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
+/* ── PICKER SCREEN ────────────────────────────── */
+#picker-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding-bottom: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.5) 40px, rgba(255,255,255,0.5) 41px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.5) 40px, rgba(255,255,255,0.5) 41px);
+  pointer-events: none;
+}
+
+/* Header */
+.picker-header {
+  width: 100%;
+  background: rgba(0,10,40,0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,209,0,0.2);
+  padding: 18px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 48px;
+  position: relative;
+  z-index: 5;
+}
+
+.header-logo { display: flex; align-items: center; gap: 14px; }
+
+.header-shield {
+  width: 40px; height: 46px;
+  clip-path: polygon(50% 0%, 100% 18%, 100% 60%, 50% 100%, 0% 60%, 0% 18%);
+  background: linear-gradient(160deg, #FFD100, #ffc200);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 900; color: #001a5c;
+}
+
+.header-right {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+#edit-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.6);
+  border-radius: 4px;
+  padding: 5px 14px;
+  cursor: pointer;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.15s;
+}
+#edit-btn:hover { background: rgba(255,255,255,0.14); color: #fff; }
+
+/* Main content */
+.picker-content {
+  width: 100%;
+  max-width: 780px;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Counter pills */
+.counters {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.counter-pill {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 12px 28px;
+  text-align: center;
+  min-width: 110px;
+}
+
+.counter-val {
+  font-size: 2rem;
+  font-weight: 900;
+  font-family: 'Barlow', sans-serif;
+  line-height: 1;
+}
+
+.counter-label {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* Stage */
+.stage {
+  width: 100%;
+  min-height: 220px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.6s ease;
+}
+
+.stage.revealed {
+  box-shadow: 0 0 60px rgba(255,209,0,0.12), inset 0 0 60px rgba(255,209,0,0.03);
+}
+
+#confetti-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Stage states */
+.stage-idle, .stage-rolling, .stage-revealed, .stage-done {
+  text-align: center;
+  position: relative;
+  z-index: 5;
+}
+
+.stage-idle .idle-icon { font-size: 2.8rem; margin-bottom: 12px; }
+.stage-idle .idle-text {
+  color: rgba(255,255,255,0.35);
+  font-size: 1rem;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+}
+
+.rolling-label {
+  font-size: 0.65rem;
+  color: #FFD100;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+#rolling-name {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 5vw, 2.8rem);
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.02em;
+  min-height: 60px;
+  animation: flicker 0.06s linear infinite;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.selected-label {
+  font-size: 0.65rem;
+  color: #FFD100;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+#winner-name {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  text-shadow: 0 0 40px rgba(255,209,0,0.4), 0 2px 20px rgba(0,0,0,0.5);
+}
+
+.winner-badge {
+  margin-top: 16px;
+  display: inline-block;
+  background: linear-gradient(135deg, #FFD100, #ffc200);
+  border-radius: 20px;
+  padding: 4px 18px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #001a5c;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@keyframes cardReveal {
+  from { opacity: 0; transform: scale(0.7) translateY(30px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.stage-revealed { animation: cardReveal 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+.done-icon { font-size: 2.5rem; margin-bottom: 10px; }
+.done-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #FFD100;
+  margin-bottom: 6px;
+}
+.done-sub { color: rgba(255,255,255,0.4); font-size: 0.85rem; }
+
+/* Buttons */
+.btn-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+#draw-btn {
+  background: linear-gradient(135deg, #FFD100 0%, #ffc000 100%);
+  color: #001a5c;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 900;
+  font-size: 1.15rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 18px 52px;
+  cursor: pointer;
+  box-shadow: 0 6px 28px rgba(255,209,0,0.35), 0 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+}
+
+#draw-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 36px rgba(255,209,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
+  filter: brightness(1.06);
+}
+
+#draw-btn:active:not(:disabled) { transform: scale(0.98); }
+
+#draw-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #ccc;
+  color: #666;
+  box-shadow: none;
+}
+
+#reset-btn {
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.6);
+  border-radius: 6px;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 22px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+#reset-btn:hover {
+  border-color: rgba(255,255,255,0.7);
+  color: #fff;
+  background: rgba(255,255,255,0.07);
+}
+
+/* Previously selected */
+#prev-section { width: 100%; }
+
+.prev-header {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.names-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.name-tag {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  padding: 6px 14px;
+  color: rgba(255,255,255,0.55);
+  font-size: 0.82rem;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s;
+}
+
+.name-tag.latest {
+  background: rgba(255,209,0,0.12);
+  border-color: rgba(255,209,0,0.3);
+  color: #FFD100;
+  font-weight: 600;
+}
+
+.name-tag-num {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+.name-tag.latest .name-tag-num {
+  background: rgba(255,209,0,0.2);
+  color: #FFD100;
+}
+
+/* ── MODAL ─────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+  display: none;
+}
+
+.modal-overlay.open { display: flex; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal {
+  background: #001f5b;
+  border: 1px solid rgba(255,209,0,0.3);
+  border-radius: 12px;
+  padding: 36px 44px;
+  text-align: center;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+}
+
+.modal-icon { font-size: 2rem; margin-bottom: 12px; }
+
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.modal-body {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.88rem;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+.modal-btns { display: flex; gap: 12px; justify-content: center; }
+
+.modal-cancel {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  border-radius: 6px;
+  padding: 10px 24px;
+  cursor: pointer;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  transition: background 0.15s;
+}
+.modal-cancel:hover { background: rgba(255,255,255,0.14); }
+
+.modal-confirm {
+  background: linear-gradient(135deg, #FFD100, #ffc200);
+  border: none;
+  color: #001a5c;
+  border-radius: 6px;
+  padding: 10px 24px;
+  cursor: pointer;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: filter 0.12s;
+}
+.modal-confirm:hover { filter: brightness(1.07); }
+</style>
+</head>
+<body>
+
+<!-- ══ INPUT SCREEN ══════════════════════════════ -->
+<div id="input-screen">
+  <div class="bg-blob" style="width:500px;height:500px;top:-150px;right:-150px;"></div>
+  <div class="bg-blob" style="width:350px;height:350px;bottom:-100px;left:-100px;"></div>
+
+  <div class="logo-row">
+    <div class="shield">N</div>
+    <div>
+      <div class="logo-name">Nationwide</div>
+      <div class="logo-tag">On Your Side®</div>
+    </div>
+  </div>
+
+  <div class="input-card">
+    <div class="card-title">Team Recognition Draw</div>
+    <div class="card-sub">Paste your names below — one per line — then press Load Names to begin.</div>
+
+    <div class="textarea-header">
+      <span class="textarea-label">Names</span>
+      <span id="name-count">No names yet</span>
+    </div>
+
+    <textarea id="names-textarea" rows="12" placeholder="John Smith&#10;Jane Doe&#10;Alex Johnson&#10;..."></textarea>
+
+    <button id="load-btn" disabled>Load Names &amp; Start Draw</button>
+    <div id="min-warning">Add at least 2 names to continue.</div>
+  </div>
+
+  <div class="footer-note">Duplicates are automatically removed · Names are drawn without replacement</div>
+</div>
+
+<!-- ══ PICKER SCREEN ═════════════════════════════ -->
+<div id="picker-screen">
+  <div class="grid-overlay"></div>
+  <div class="bg-blob" style="width:600px;height:600px;top:-200px;right:-200px;opacity:0.4;"></div>
+  <div class="bg-blob" style="width:400px;height:400px;bottom:-100px;left:-150px;"></div>
+
+  <div class="picker-header">
+    <div class="header-logo">
+      <div class="header-shield">N</div>
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:900;color:#fff;line-height:1;">Nationwide</div>
+        <div style="font-size:0.62rem;color:#FFD100;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;margin-top:2px;">On Your Side®</div>
+      </div>
+    </div>
+    <div class="header-right">
+      Team Recognition Draw
+      <button id="edit-btn">Edit Names</button>
+    </div>
+  </div>
+
+  <div class="picker-content">
+
+    <!-- Counters -->
+    <div class="counters">
+      <div class="counter-pill">
+        <div class="counter-val" id="cnt-remaining" style="color:#FFD100;">0</div>
+        <div class="counter-label">Remaining</div>
+      </div>
+      <div class="counter-pill">
+        <div class="counter-val" id="cnt-selected" style="color:#7cb8ff;">0</div>
+        <div class="counter-label">Selected</div>
+      </div>
+      <div class="counter-pill">
+        <div class="counter-val" id="cnt-total" style="color:rgba(255,255,255,0.4);">0</div>
+        <div class="counter-label">Total</div>
+      </div>
+    </div>
+
+    <!-- Stage -->
+    <div class="stage" id="stage">
+      <canvas id="confetti-canvas"></canvas>
+
+      <!-- idle -->
+      <div class="stage-idle" id="phase-idle">
+        <div class="idle-icon">🎯</div>
+        <div class="idle-text">Press the button to draw a name</div>
+      </div>
+
+      <!-- rolling -->
+      <div class="stage-rolling" id="phase-rolling" style="display:none;">
+        <div class="rolling-label">Drawing...</div>
+        <div id="rolling-name"></div>
+      </div>
+
+      <!-- revealed -->
+      <div class="stage-revealed" id="phase-revealed" style="display:none;">
+        <div class="selected-label">✦ Selected ✦</div>
+        <div id="winner-name"></div>
+        <div class="winner-badge">Winner</div>
+      </div>
+
+      <!-- all done -->
+      <div id="phase-done" style="display:none;text-align:center;position:relative;z-index:5;">
+        <div class="done-icon">🏆</div>
+        <div class="done-title">All Names Drawn!</div>
+        <div class="done-sub">Every team member has been selected.</div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-row">
+      <button id="draw-btn">Draw a Name</button>
+      <button id="reset-btn">Reset All Names</button>
+    </div>
+
+    <!-- Previously selected -->
+    <div id="prev-section" style="display:none;">
+      <div class="prev-header" id="prev-header"></div>
+      <div class="names-grid" id="names-grid"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ RESET MODAL ═══════════════════════════════ -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">Reset the Draw?</div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" id="modal-cancel">Cancel</button>
+      <button class="modal-confirm" id="modal-confirm">Yes, Reset</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CONFETTI_COLORS = ["#FFD100","#003087","#ffffff","#ffc200","#1a4db5"];
+
+// ── State ────────────────────────────────────────
+let allNames = [];
+let pool = [];
+let selected = [];
+let phase = "idle"; // idle | rolling | revealed
+let rolling = false;
+let rollTimer = null;
+let confettiAnim = null;
+let confettiParticles = [];
+
+// ── Elements ─────────────────────────────────────
+const inputScreen  = document.getElementById('input-screen');
+const pickerScreen = document.getElementById('picker-screen');
+const textarea     = document.getElementById('names-textarea');
+const nameCount    = document.getElementById('name-count');
+const loadBtn      = document.getElementById('load-btn');
+const minWarn      = document.getElementById('min-warning');
+const editBtn      = document.getElementById('edit-btn');
+const drawBtn      = document.getElementById('draw-btn');
+const resetBtn     = document.getElementById('reset-btn');
+const stage        = document.getElementById('stage');
+const canvas       = document.getElementById('confetti-canvas');
+const ctx          = canvas.getContext('2d');
+
+const phaseIdle     = document.getElementById('phase-idle');
+const phaseRolling  = document.getElementById('phase-rolling');
+const phaseRevealed = document.getElementById('phase-revealed');
+const phaseDone     = document.getElementById('phase-done');
+const rollingName   = document.getElementById('rolling-name');
+const winnerName    = document.getElementById('winner-name');
+
+const cntRemaining  = document.getElementById('cnt-remaining');
+const cntSelected   = document.getElementById('cnt-selected');
+const cntTotal      = document.getElementById('cnt-total');
+
+const prevSection   = document.getElementById('prev-section');
+const prevHeader    = document.getElementById('prev-header');
+const namesGrid     = document.getElementById('names-grid');
+
+const modal         = document.getElementById('modal');
+const modalBody     = document.getElementById('modal-body');
+const modalCancel   = document.getElementById('modal-cancel');
+const modalConfirm  = document.getElementById('modal-confirm');
+
+// ── Parse names ──────────────────────────────────
+function getParsed() {
+  return [...new Set(
+    textarea.value.split('\n').map(n => n.trim()).filter(n => n.length > 0)
+  )];
+}
+
+textarea.addEventListener('input', () => {
+  const parsed = getParsed();
+  if (parsed.length === 0) {
+    nameCount.textContent = 'No names yet';
+    nameCount.classList.remove('has-names');
+    loadBtn.disabled = true;
+    minWarn.style.display = 'none';
+  } else {
+    nameCount.textContent = `${parsed.length} name${parsed.length !== 1 ? 's' : ''} detected`;
+    nameCount.classList.add('has-names');
+    loadBtn.disabled = parsed.length < 2;
+    minWarn.style.display = parsed.length === 1 ? 'block' : 'none';
+    loadBtn.textContent = `Load ${parsed.length} Names & Start Draw`;
+  }
+});
+
+// ── Load names ───────────────────────────────────
+loadBtn.addEventListener('click', () => {
+  const parsed = getParsed();
+  if (parsed.length < 2) return;
+  allNames = parsed;
+  pool = [...allNames];
+  selected = [];
+  phase = 'idle';
+  rolling = false;
+  stopConfetti();
+  showScreen('picker');
+  updateCounters();
+  showPhase('idle');
+  updatePrevSection();
+  drawBtn.disabled = false;
+  drawBtn.textContent = 'Draw a Name';
+});
+
+// ── Edit names ───────────────────────────────────
+editBtn.addEventListener('click', () => {
+  stopConfetti();
+  if (rollTimer) clearInterval(rollTimer);
+  rolling = false;
+  showScreen('input');
+});
+
+// ── Show screen ───────────────────────────────────
+function showScreen(s) {
+  inputScreen.style.display  = s === 'input'  ? 'flex' : 'none';
+  pickerScreen.style.display = s === 'picker' ? 'flex' : 'none';
+}
+
+// ── Phase display ─────────────────────────────────
+function showPhase(p) {
+  phaseIdle.style.display     = 'none';
+  phaseRolling.style.display  = 'none';
+  phaseRevealed.style.display = 'none';
+  phaseDone.style.display     = 'none';
+  stage.classList.remove('revealed');
+
+  if (p === 'idle')     { phaseIdle.style.display = 'flex'; phaseIdle.style.flexDirection = 'column'; phaseIdle.style.alignItems = 'center'; }
+  if (p === 'rolling')  { phaseRolling.style.display = 'block'; }
+  if (p === 'revealed') { phaseRevealed.style.display = 'block'; stage.classList.add('revealed'); }
+  if (p === 'done')     { phaseDone.style.display = 'block'; }
+}
+
+// ── Counters ──────────────────────────────────────
+function updateCounters() {
+  cntRemaining.textContent = pool.length;
+  cntSelected.textContent  = selected.length;
+  cntTotal.textContent     = allNames.length;
+}
+
+// ── Previous selected ─────────────────────────────
+function updatePrevSection() {
+  if (selected.length === 0) {
+    prevSection.style.display = 'none';
+    return;
+  }
+  prevSection.style.display = 'block';
+  prevHeader.textContent = `Previously Selected — ${selected.length} name${selected.length !== 1 ? 's' : ''}`;
+  namesGrid.innerHTML = selected.map((name, i) => `
+    <div class="name-tag ${i === 0 ? 'latest' : ''}">
+      <span class="name-tag-num">${selected.length - i}</span>
+      ${name}
+    </div>
+  `).join('');
+}
+
+// ── Draw ──────────────────────────────────────────
+drawBtn.addEventListener('click', () => {
+  if (rolling || pool.length === 0) return;
+  rolling = true;
+  drawBtn.disabled = true;
+  drawBtn.textContent = 'Drawing...';
+  stopConfetti();
+  showPhase('rolling');
+
+  let ticks = 0;
+  const totalTicks = 28;
+
+  rollTimer = setInterval(() => {
+    const rand = pool[Math.floor(Math.random() * pool.length)];
+    rollingName.textContent = rand;
+    ticks++;
+
+    if (ticks >= totalTicks) {
+      clearInterval(rollTimer);
+      const idx = Math.floor(Math.random() * pool.length);
+      const winner = pool[idx];
+      pool.splice(idx, 1);
+
+      setTimeout(() => {
+        winnerName.textContent = winner;
+        selected.unshift(winner);
+        rolling = false;
+
+        if (pool.length === 0) {
+          showPhase('done');
+          drawBtn.disabled = true;
+          drawBtn.textContent = 'All Done';
+        } else {
+          showPhase('revealed');
+          drawBtn.disabled = false;
+          drawBtn.textContent = 'Draw a Name';
+        }
+
+        updateCounters();
+        updatePrevSection();
+        startConfetti();
+        setTimeout(() => stopConfetti(), 3000);
+      }, 120);
+    }
+  }, 60);
+});
+
+// ── Reset modal ───────────────────────────────────
+resetBtn.addEventListener('click', () => {
+  modalBody.textContent = `This will restore all ${allNames.length} names and clear the selection history.`;
+  modal.classList.add('open');
+});
+modalCancel.addEventListener('click', () => modal.classList.remove('open'));
+modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+modalConfirm.addEventListener('click', () => {
+  modal.classList.remove('open');
+  pool = [...allNames];
+  selected = [];
+  phase = 'idle';
+  rolling = false;
+  stopConfetti();
+  if (rollTimer) clearInterval(rollTimer);
+  showPhase('idle');
+  updateCounters();
+  updatePrevSection();
+  drawBtn.disabled = false;
+  drawBtn.textContent = 'Draw a Name';
+});
+
+// ── Confetti ──────────────────────────────────────
+function startConfetti() {
+  canvas.width  = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  confettiParticles = Array.from({ length: 80 }, () => ({
+    x: Math.random() * canvas.width,
+    y: -10,
+    vx: (Math.random() - 0.5) * 3,
+    vy: Math.random() * 3 + 2,
+    color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+    size: Math.random() * 8 + 4,
+    rotation: Math.random() * 360,
+    rotSpeed: (Math.random() - 0.5) * 6,
+    shape: Math.random() > 0.5 ? 'rect' : 'circle',
+  }));
+  if (confettiAnim) cancelAnimationFrame(confettiAnim);
+  drawConfetti();
+}
+
+function drawConfetti() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  confettiParticles.forEach(p => {
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rotation * Math.PI / 180);
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = 0.85;
+    if (p.shape === 'rect') {
+      ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+    } else {
+      ctx.beginPath();
+      ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.05;
+    p.rotation += p.rotSpeed;
+  });
+  confettiParticles = confettiParticles.filter(p => p.y < canvas.height + 20);
+  if (confettiParticles.length > 0) {
+    confettiAnim = requestAnimationFrame(drawConfetti);
+  } else {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+}
+
+function stopConfetti() {
+  if (confettiAnim) cancelAnimationFrame(confettiAnim);
+  confettiParticles = [];
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// ── Init ──────────────────────────────────────────
+showScreen('input');
+</script>
+</body>
+</html>
